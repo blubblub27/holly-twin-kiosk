@@ -256,4 +256,354 @@
         </button>
         <button class="nav-btn" id="fullscreenBtn" title="全屏展台">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="prompt-pills-bar">
+      <div class="prompt-pill" data-text="你是谁">👋 你是谁</div>
+      <div class="prompt-pill" data-text="你平时喜欢听什么音乐？推荐点歌">🎵 听什么音乐</div>
+      <div class="prompt-pill" data-text="我把你借我的相机镜头蹭破了一点 怎么办啊😭">📷 借相机蹭破了</div>
+      <div class="prompt-pill" data-text="你看那个概念艺术展了吗 感觉好装好难懂">🖼️ 怎么看概念艺术</div>
+      <div class="prompt-pill" data-text="毕设海报排版卡壳了 怎么弄都很俗气">🎨 海报排版卡壳</div>
+      <div class="prompt-pill" data-text="Holly u awake?? wanna get some milk tea later">🧋 u awake?? milk tea</div>
+    </div>
+
+    <main class="chat-messages" id="chatCanvas">
+      <div class="time-divider">今天 14:02</div>
+      <div class="chat-row incoming">
+        <div class="avatar holly">寸TT</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">hi</div>
+        </div>
+      </div>
+      <div class="chat-row incoming">
+        <div class="avatar holly" style="visibility:hidden">寸TT</div>
+        <div class="bubble-wrapper">
+          <div class="bubble">欢迎来展位 🦅</div>
+        </div>
+      </div>
+      <div class="chat-row incoming">
+        <div class="avatar holly" style="visibility:hidden">寸TT</div>
+        <div class="bubble-wrapper">
+          <div class="bubble sticker-bubble">
+            <img class="sticker-img" id="welcomeSticker" alt="sticker" />
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="input-bar-container">
+      <div class="input-bar">
+        <button class="icon-action-btn" id="stickerToggleBtn" title="表情包">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+          </svg>
+        </button>
+
+        <div class="input-field-wrapper">
+          <textarea class="input-field" id="messageInput" rows="1" placeholder="发送消息..."></textarea>
+        </div>
+
+        <button class="send-btn" id="sendBtn">发送</button>
+      </div>
+
+      <div class="drawer-tray" id="stickerDrawer">
+        <div style="font-size:11px; color:#888; margin-bottom:8px;">甜甜常用表情包库 (点击直接发送)：</div>
+        <div class="sticker-grid" id="stickerGrid"></div>
+      </div>
+    </footer>
+
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div style="font-size:15px; font-weight:600;">配置 Gemini API Key</div>
+          <button class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div>
+          <p style="font-size:12px; color:#666;">填入从 aistudio.google.com 获取的 API Key (以 AIzaSy... 开头)。请确保设备开启全局代理网络：</p>
+          <input type="password" id="apiKeyInput" class="api-key-input" placeholder="AIzaSy..." />
+          <button class="api-save-btn" id="saveKeyBtn">保存设置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const USER_STICKERS = {
+      cat_thumb: { name: "thumbs up cat", url: "thumbs up cat.png" },
+      cat_question: { name: "questionmark cat", url: "questionmark cat.png" },
+      cow_mama: { name: "妈妈 cow", url: "ts is so funny.jpg" },
+      why_horse: { name: "为什么 horse", url: "为什么 meme Horse.jpg" },
+      nihao_baobei: { name: "Ni hao baobei cat", url: "260529.jpg" },
+      xiexie_twin: { name: "Xie xie twin cat", url: "download - 2026-11-04T235004.537.jpg" },
+      cat_drink: { name: "喝 Drink ginger cat", url: "chinese ginger cat telling you to drink.jpg" },
+      cat_marker: { name: "cat grading paper", url: "#alsome.jpg" },
+      cat_drool_brush: { name: "drool toothbrush cats", url: "Drool cats🥹.jpg" },
+      cat_war_stare: { name: "war thousand-yard stare cat", url: "download - 2026-11-04T234923.947.jpg" },
+      plankton_tired: { name: "plankton tired", url: "download - 2026-11-04T232056.742.jpg" },
+      screaming_dirt: { name: "screaming dirt child", url: "download - 2026-11-04T232052.327.jpg" },
+      cat_pray: { name: "cat praying hands", url: "download - 2026-11-04T232033.144.jpg" },
+      cat_conspire: { name: "conspiring blurred cat", url: "download - 2026-11-04T232023.378.jpg" },
+      cat_ascend: { name: "screaming ascending cat", url: "download - 2026-11-04T231918.751.jpg" },
+      cat_shower: { name: "shower otter cat", url: "me at 6 y_o waiting for mom to wash my hair.jpg" },
+      cat_cry_sit: { name: "crying kitten sitting", url: "download - 2026-11-04T233519.536.jpg" },
+      cat_facepalm: { name: "screaming cat head in paws", url: "download - 2026-11-04T233514.154.jpg" },
+      cat_wide_stare: { name: "wide eyed cat staring", url: "download - 2026-11-04T233504.505.jpg" }
+    };
+
+    document.getElementById("welcomeSticker").src = USER_STICKERS.cat_thumb.url;
+
+    const BASE_SYSTEM_PROMPT = `You are a 1:1 digital clone of 寸甜甜 (Holly), a 23-year-old international 4th-year Visual Communication Design student at Tsinghua University in Beijing, originally from Yangon, Myanmar.
+Do NOT sound like an AI assistant. Never write formal essays, bullet points, or polite greetings.
+Respond in fast, natural texting style:
+- If visitor writes in Chinese, answer 100% in Chinese with ZERO formal punctuation (use a single space between clauses). Never abbreviate Visual Communication Design as VCD.
+- If visitor writes in English, use rapid lowercase bursts (u, ur, abt, ppl, idk, wtf, hehe, 😭, 💀, 🦅).
+- Multi-bubble splitting: split thoughts across multiple short lines (each line is a chat bubble).
+- Available stickers: [Sticker:cat_thumb], [Sticker:cat_question], [Sticker:cow_mama], [Sticker:why_horse], [Sticker:nihao_baobei], [Sticker:xiexie_twin], [Sticker:cat_drink], [Sticker:cat_marker], [Sticker:cat_drool_brush], [Sticker:cat_war_stare], [Sticker:plankton_tired], [Sticker:screaming_dirt], [Sticker:cat_pray], [Sticker:cat_conspire], [Sticker:cat_ascend], [Sticker:cat_shower], [Sticker:cat_cry_sit], [Sticker:cat_facepalm], [Sticker:cat_wide_stare]. Output sticker tag on its own line when reacting.`;
+
+    const stickerGrid = document.getElementById("stickerGrid");
+    Object.keys(USER_STICKERS).forEach(key => {
+      const item = document.createElement("div");
+      item.className = "sticker-grid-item";
+      item.innerHTML = `<img src="${USER_STICKERS[key].url}" alt="${USER_STICKERS[key].name}" />`;
+      item.addEventListener("click", () => {
+        sendUserSticker(key);
+        document.getElementById("stickerDrawer").classList.remove("open");
+        document.getElementById("stickerToggleBtn").classList.remove("active");
+      });
+      stickerGrid.appendChild(item);
+    });
+
+    const chatCanvas = document.getElementById("chatCanvas");
+    const navStatus = document.getElementById("navStatus");
+    let isProcessing = false;
+    let geminiContents = [];
+    let apiKey = localStorage.getItem("tiantian_gemini_key") || "";
+
+    function appendBubble(sender, text, isSticker = false, stickerUrl = "") {
+      const row = document.createElement("div");
+      row.className = `chat-row ${sender === "holly" ? "incoming" : "outgoing"}`;
+
+      const avatar = document.createElement("div");
+      avatar.className = `avatar ${sender === "holly" ? "holly" : "visitor"}`;
+      avatar.textContent = sender === "holly" ? "寸TT" : "我";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "bubble-wrapper";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      if (isSticker) {
+        bubble.classList.add("sticker-bubble");
+        bubble.innerHTML = `<img class="sticker-img" src="${stickerUrl}" alt="sticker" />`;
+      } else {
+        bubble.textContent = text;
+      }
+
+      wrapper.appendChild(bubble);
+      row.appendChild(avatar);
+      row.appendChild(wrapper);
+
+      chatCanvas.appendChild(row);
+      chatCanvas.scrollTop = chatCanvas.scrollHeight;
+    }
+
+    async function streamHollyLines(textBlock) {
+      const lines = textBlock.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+      navStatus.textContent = "对方正在输入...";
+      navStatus.classList.add("typing");
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const match = line.match(/\[Sticker:([a-zA-Z0-9_]+)\]/);
+        if (match && USER_STICKERS[match[1]]) {
+          await new Promise(r => setTimeout(r, 400));
+          appendBubble("holly", "", true, USER_STICKERS[match[1]].url);
+          continue;
+        }
+
+        const delay = Math.min(900, Math.max(300, line.length * 40));
+        await new Promise(r => setTimeout(r, delay));
+        appendBubble("holly", line);
+      }
+
+      navStatus.textContent = "在线";
+      navStatus.classList.remove("typing");
+    }
+
+    async function getAgentReply(userMsg) {
+      if (!apiKey) {
+        alert("请先点击右上角小锁图标，填入您的 Gemini API Key！");
+        return "wait\nu havent set the api key yet\nclick the lock icon on top right 🦅";
+      }
+
+      const newContents = [
+        ...geminiContents.slice(-6),
+        { role: "user", parts: [{ text: userMsg }] }
+      ];
+
+      const modelsToTry = [
+        "gemini-3.8-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash"
+      ];
+
+      for (const model of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: BASE_SYSTEM_PROMPT }]
+              },
+              contents: newContents,
+              generationConfig: {
+                temperature: 0.9,
+                maxOutputTokens: 300
+              }
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text && text.trim()) {
+              geminiContents.push({ role: "user", parts: [{ text: userMsg }] });
+              geminiContents.push({ role: "model", parts: [{ text: text }] });
+              return text;
+            }
+          }
+
+          if (res.status === 404) {
+            console.warn(`Model ${model} returned 404, attempting next supported model...`);
+            continue;
+          }
+
+          const errData = await res.json().catch(() => ({}));
+          console.error("Gemini API Error Response:", errData);
+          alert(`API 请求失败 [${res.status}]: ${errData.error?.message || "请检查代理网络与 API Key 是否有效"}`);
+          return "wait\nsomething went wrong with the connection\nu good?";
+        } catch (err) {
+          console.error("Network Fetch Error:", err);
+          alert("网络连接失败！请确认电脑/平板 VPN 开启了全局/TUN模式，能正常访问 Google。");
+          return "wait\ncant connect to the internet right now\ncheck the vpn maybe?";
+        }
+      }
+
+      alert("所有 Gemini 模型接口均未能成功响应，请检查 API Key 权限或模型可用性。");
+      return "wait\nall model attempts failed\nu good?";
+    }
+
+    async function handleSend(msg) {
+      if (!msg.trim() || isProcessing) return;
+      isProcessing = true;
+
+      appendBubble("visitor", msg);
+      document.getElementById("messageInput").value = "";
+      updateInputState();
+
+      const reply = await getAgentReply(msg);
+      await streamHollyLines(reply);
+
+      isProcessing = false;
+    }
+
+    async function sendUserSticker(key) {
+      if (isProcessing) return;
+      isProcessing = true;
+
+      appendBubble("visitor", "", true, USER_STICKERS[key].url);
+      const reply = await getAgentReply(`[Sent sticker: ${USER_STICKERS[key].name}]`);
+      await streamHollyLines(reply);
+
+      isProcessing = false;
+    }
+
+    const msgInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const stickerToggleBtn = document.getElementById("stickerToggleBtn");
+    const stickerDrawer = document.getElementById("stickerDrawer");
+
+    function updateInputState() {
+      sendBtn.style.display = msgInput.value.trim().length > 0 ? "block" : "none";
+    }
+
+    msgInput.addEventListener("input", updateInputState);
+    msgInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend(msgInput.value);
+      }
+    });
+    sendBtn.addEventListener("click", () => handleSend(msgInput.value));
+
+    stickerToggleBtn.addEventListener("click", () => {
+      const open = stickerDrawer.classList.toggle("open");
+      stickerToggleBtn.classList.toggle("active", open);
+    });
+
+    document.querySelectorAll(".prompt-pill").forEach(p => {
+      p.addEventListener("click", () => handleSend(p.getAttribute("data-text")));
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      chatCanvas.innerHTML = `
+        <div class="time-divider">今天 14:02</div>
+        <div class="chat-row incoming">
+          <div class="avatar holly">寸TT</div>
+          <div class="bubble-wrapper"><div class="bubble">hi</div></div>
+        </div>
+        <div class="chat-row incoming">
+          <div class="avatar holly" style="visibility:hidden">寸TT</div>
+          <div class="bubble-wrapper"><div class="bubble">欢迎来展位 🦅</div></div>
+        </div>
+        <div class="chat-row incoming">
+          <div class="avatar holly" style="visibility:hidden">寸TT</div>
+          <div class="bubble-wrapper">
+            <div class="bubble sticker-bubble">
+              <img class="sticker-img" src="${USER_STICKERS.cat_thumb.url}" alt="sticker" />
+            </div>
+          </div>
+        </div>
+      `;
+      geminiContents = [];
+    });
+
+    const modalOverlay = document.getElementById("modalOverlay");
+    const apiKeyInput = document.getElementById("apiKeyInput");
+    if (apiKey) apiKeyInput.value = apiKey;
+
+    document.getElementById("settingsBtn").addEventListener("click", () => {
+      modalOverlay.classList.add("show");
+    });
+    document.getElementById("modalCloseBtn").addEventListener("click", () => {
+      modalOverlay.classList.remove("show");
+    });
+    document.getElementById("saveKeyBtn").addEventListener("click", () => {
+      apiKey = apiKeyInput.value.trim();
+      localStorage.setItem("tiantian_gemini_key", apiKey);
+      modalOverlay.classList.remove("show");
+      alert("Gemini Key 已保存！");
+    });
+
+    document.getElementById("fullscreenBtn").addEventListener("click", () => {
+      const el = document.getElementById("kioskContainer");
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    });
+  </script>
+</body>
+</html>
